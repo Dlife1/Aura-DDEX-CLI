@@ -42,10 +42,10 @@ const App: React.FC = () => {
       {appState === AppState.IDLE && (
         <div className="flex flex-col items-center justify-center min-h-screen relative">
           <div className="mb-8 text-center">
-             <h1 className="text-4xl font-bold font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 mb-2">
-               AURA-DDEX-CLI
+             <h1 className="text-4xl font-bold font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-600 mb-2">
+               GRESHAM PROTOCOL CLI
              </h1>
-             <p className="text-slate-500 text-sm font-mono">Advanced Unified Release Architecture // Distribution Terminal</p>
+             <p className="text-slate-500 text-sm font-mono">LinkZ Generative UI Engine // Active</p>
           </div>
           <Terminal 
             value={terminalInput}

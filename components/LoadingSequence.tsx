@@ -13,17 +13,18 @@ const LoadingSequence: React.FC<LoadingSequenceProps> = ({ args, onComplete }) =
 
   useEffect(() => {
     const sequence = [
-      { msg: `Initializing AURA-DDEX-CLI core...`, delay: 100 },
-      { msg: `Target Release ID: ${args.releaseId}`, delay: 300 },
-      { msg: `Connecting to Asset Source: ${args.assetSource.substring(0, 30)}...`, delay: 600 },
+      { msg: `Initializing LINKZ GENERATIVE UI ENGINE...`, delay: 100 },
+      { msg: `Authenticating with Gresham Protocol Nodes...`, delay: 300 },
+      { msg: `Target Release ID: ${args.releaseId} (ZacDWatts)`, delay: 600 },
+      { msg: `Connecting to Asset Source: ${args.assetSource.substring(0, 30)}...`, delay: 900 },
       { msg: `Validating DDEX Profile: ${args.ddexProfile}`, delay: 1200 },
       { msg: `> XML Schema Validation: PASS`, delay: 1500 },
       { msg: `> Media Manifest Check: PASS`, delay: 1800 },
-      { msg: `Establishing Blockchain Handshake (${args.blockchainTag ? 'ENABLED' : 'DISABLED'})...`, delay: 2400 },
-      { msg: `[BLOCKCHAIN] Hash generated: 0x7f83b1...9a2`, delay: 2800 },
-      { msg: `Engaging AI Semantic Audit...`, delay: 3200 },
+      { msg: `Activating AP2 FinTech Protocol Layer...`, delay: 2400 },
+      { msg: `[AP2] Hard-coding split: 70% Artist / 15% Liq / 15% Equity`, delay: 2800 },
+      { msg: `Engaging IAED Semantic Audit (Nocturnal-Industrial Mode)...`, delay: 3200 },
       { msg: `> Analyzed 14 metadata fields.`, delay: 4000 },
-      { msg: `> Sentiment Analysis: NEUTRAL_POSITIVE`, delay: 4200 },
+      { msg: `> Sentiment Analysis: RESILIENT_POSITIVE`, delay: 4200 },
       { msg: `Committing to RDR/SRM modules...`, delay: 4800 },
       { msg: `Generating Smart Waterfall Schedule (Strategy: ${args.scheduleStrategy})...`, delay: 5500 },
       { msg: `E2E Scope: ${args.e2eScope} activated.`, delay: 6000 },
@@ -63,7 +64,7 @@ const LoadingSequence: React.FC<LoadingSequenceProps> = ({ args, onComplete }) =
         <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-10 bg-[length:100%_2px,3px_100%] pointer-events-none" />
         
         <div className="flex items-center justify-between mb-4 border-b border-slate-800 pb-2">
-           <span className="text-cyan-500 animate-pulse">:: SYSTEM INITIALIZATION ::</span>
+           <span className="text-cyan-500 animate-pulse">:: GRESHAM PROTOCOL DEPLOYMENT ::</span>
            <span className="text-slate-600">{args.releaseId}</span>
         </div>
 

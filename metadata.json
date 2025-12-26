@@ -1,5 +1,8 @@
 {
   "name": "AURA-DDEX-CLI",
   "description": "A state-of-the-art, AI-driven music distribution terminal implementing DDEX standards, Smart Waterfall scheduling, and Blockchain provenance tracking.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "microphone",
+    "geolocation"
+  ]
 }

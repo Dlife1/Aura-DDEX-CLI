@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
-import { Upload, Music, Image as ImageIcon, X, Check, Loader2, FileAudio, ArrowRight } from 'lucide-react';
+import { Upload, Music, Image as ImageIcon, X, Check, Loader2, FileAudio, ArrowRight, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { analyzeCoverArt } from '../services/geminiService';
+import { ImageAnalysisResult } from '../types';
 
 interface AssetStagingProps {
   isOpen: boolean;
@@ -12,6 +14,7 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
   const [audioFiles, setAudioFiles] = useState<File[]>([]);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [isProcessingImg, setIsProcessingImg] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<ImageAnalysisResult | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleAudioDrop = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,10 +25,11 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
 
   const processImage = (file: File) => {
     setIsProcessingImg(true);
+    setAnalysisResult(null);
     const reader = new FileReader();
     reader.onload = (event) => {
       const img = new Image();
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas');
         canvas.width = 3000;
         canvas.height = 3000;
@@ -37,7 +41,16 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
           ctx.drawImage(img, 0, 0, 3000, 3000);
           const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
           setCoverImage(dataUrl);
-          setIsProcessingImg(false);
+          
+          // Trigger AI Analysis
+          try {
+            const result = await analyzeCoverArt(dataUrl);
+            setAnalysisResult(result);
+          } catch (e) {
+            console.error(e);
+          } finally {
+            setIsProcessingImg(false);
+          }
         }
       };
       img.src = event.target?.result as string;
@@ -144,7 +157,7 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
                {isProcessingImg && (
                  <div className="absolute inset-0 bg-black/80 flex items-center justify-center flex-col z-20">
                    <Loader2 className="animate-spin text-cyan-400 mb-2" />
-                   <span className="text-xs text-cyan-400 font-mono">RESIZING TO 3000px...</span>
+                   <span className="text-xs text-cyan-400 font-mono">SCALING & ANALYZING...</span>
                  </div>
                )}
 
@@ -154,8 +167,17 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
                    <div className="absolute bottom-2 right-2 bg-black/70 px-2 py-1 rounded text-[10px] text-green-400 border border-green-900 font-mono flex items-center">
                      <Check size={10} className="mr-1" /> 3000x3000px
                    </div>
+                   
+                   {/* AI Badge */}
+                   {analysisResult && (
+                      <div className={`absolute top-2 left-2 px-2 py-1 rounded text-[10px] font-mono flex items-center border ${analysisResult.isCompliant ? 'bg-green-900/80 border-green-700 text-green-300' : 'bg-red-900/80 border-red-700 text-red-300'}`}>
+                        {analysisResult.isCompliant ? <ShieldCheck size={10} className="mr-1"/> : <AlertTriangle size={10} className="mr-1"/>}
+                        {analysisResult.isCompliant ? `COMPLIANT (${analysisResult.qualityScore}%)` : 'FLAGGED'}
+                      </div>
+                   )}
+
                    <button 
-                     onClick={() => setCoverImage(null)}
+                     onClick={() => { setCoverImage(null); setAnalysisResult(null); }}
                      className="absolute top-2 right-2 bg-red-900/80 p-1 rounded hover:bg-red-800 text-white"
                    >
                      <X size={14} />
@@ -163,6 +185,31 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
                  </div>
                )}
             </div>
+
+            {/* Analysis Details */}
+            {analysisResult && (
+              <div className="bg-slate-900/50 p-3 rounded border border-slate-800 text-xs font-mono">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-slate-400">GEMINI VISION ANALYSIS</span>
+                  <span className="text-cyan-500">v2.5-flash</span>
+                </div>
+                {analysisResult.issues.length > 0 ? (
+                  <div className="text-red-400 space-y-1">
+                    {analysisResult.issues.map((issue, i) => (
+                      <div key={i}>• {issue}</div>
+                    ))}
+                  </div>
+                ) : (
+                   <div className="text-green-400">• No metadata or visual violations detected.</div>
+                )}
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {analysisResult.tags.map(tag => (
+                    <span key={tag} className="px-1.5 py-0.5 bg-slate-800 text-slate-400 rounded text-[10px]">{tag}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
 
@@ -173,10 +220,10 @@ export const AssetStaging: React.FC<AssetStagingProps> = ({ isOpen, onClose, onC
            </div>
            <button 
              onClick={handleCommit}
-             disabled={!coverImage || audioFiles.length === 0 || isUploading}
+             disabled={!coverImage || audioFiles.length === 0 || isUploading || (analysisResult && !analysisResult.isCompliant)}
              className={`
                flex items-center space-x-2 px-6 py-2 rounded font-bold font-mono text-sm transition-all
-               ${(!coverImage || audioFiles.length === 0) 
+               ${(!coverImage || audioFiles.length === 0 || (analysisResult && !analysisResult.isCompliant)) 
                  ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
                  : 'bg-cyan-600 hover:bg-cyan-500 text-black shadow-[0_0_15px_rgba(8,145,178,0.5)]'}
              `}
